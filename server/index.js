@@ -45,8 +45,14 @@ app.get("/callback", async (req, res) => {
     });
 
     const { access_token, refresh_token, expires_in } = response.data;
+    res.redirect(
+  `${process.env.FRONTEND_URI}/?${qs.stringify({
+    access_token,
+    refresh_token,
+    expires_in,
+  })}`
+);
 
-    res.json({ access_token, refresh_token, expires_in }); // <--- Send JSON instead of redirect
   } catch (error) {
     console.error("Token error", error.response?.data || error.message);
     res.sendStatus(400);
