@@ -1,25 +1,33 @@
-import { useEffect } from "react";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Callback from "./Callback.tsx";
 
-function App() {
+
+function Home() {
+  const token = localStorage.getItem("spotify_token");
+
   const handleLogin = () => {
-    window.location.href = "http://localhost:3000/login"; // ✅ Fixed protocol and port
+    window.location.href = "http://localhost:5000/login";
   };
 
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const accessToken = params.get("access_token"); // ✅ Correct param name (lowercase)
-
-    if (accessToken) {
-      localStorage.setItem("spotify_token", accessToken);
-    }
-  }, []);
-
   return (
-    <div className="App">
+    <div>
       <h1>Spotify Playlist Generator</h1>
-      <button onClick={handleLogin}>Login with Spotify</button>
+      {!token ? (
+        <button onClick={handleLogin}>Login with Spotify</button>
+      ) : (
+        <p>You are logged in!</p>
+      )}
     </div>
   );
 }
 
-export default App;
+export default function App() {
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/callback" element={<Callback />} />
+      </Routes>
+    </BrowserRouter>
+  );
+}

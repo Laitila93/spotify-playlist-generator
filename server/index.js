@@ -5,7 +5,7 @@ const qs = require("querystring");
 require("dotenv").config();
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
@@ -30,34 +30,29 @@ app.get("/login", (req, res) => {
 });
 
 app.get("/callback", async (req, res) => {
-    const code = req.query.code || null;
+  const code = req.query.code || null;
 
-    try {
-        const response = await axios.post("https://accounts.spotify.com/api/token", qs.stringify({
-            code,
-            redirect_uri: REDIRECT_URI,
-            grant_type: "authorization_code",
-        }), {
-            headers: {
-                "Content-Type": "application/x-www-form-urlencoded",
-                Authorization: "Basic " + Buffer.from(CLIENT_ID + ":" + CLIENT_SECRET).toString("base64"), 
-            },
-        });
+  try {
+    const response = await axios.post("https://accounts.spotify.com/api/token", qs.stringify({
+      code,
+      redirect_uri: REDIRECT_URI,
+      grant_type: "authorization_code",
+    }), {
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+        Authorization: "Basic " + Buffer.from(CLIENT_ID + ":" + CLIENT_SECRET).toString("base64"),
+      },
+    });
 
-        const { access_token, refresh_token, expires_in } = response.data;
+    const { access_token, refresh_token, expires_in } = response.data;
 
-        res.redirect(
-            `${process.env.FRONTEND_URI}/?${qs.stringify({
-                access_token,
-                refresh_token,
-                expires_in,
-            })}`
-        );
-    } catch (error) {
-        console.error("Token error", error.response?.data || error.message);
-        res.sendStatus(400);
-    }
+    res.json({ access_token, refresh_token, expires_in }); // <--- Send JSON instead of redirect
+  } catch (error) {
+    console.error("Token error", error.response?.data || error.message);
+    res.sendStatus(400);
+  }
 });
+
 
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
